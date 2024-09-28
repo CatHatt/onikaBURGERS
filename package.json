@@ -3,7 +3,8 @@
     "version": "1.0.0",
     "main": "dist/index.js",
     "scripts": {
-        "dev": "tsx watch src/index.ts",
+        "dev": "tsx src/index.ts",
+        "dev-w": "tsx watch src/index.ts",
         "build": "tsc",
         "start": "node .",
         "deploy": "node ./dist/deploy-commands.js",
