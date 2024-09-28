@@ -41,4 +41,24 @@ for (const folder of commandFolders) {
     }
 }
 
+const eventsPath = path.join(__dirname, 'events')
+const eventFiles = fs
+    .readdirSync(eventsPath)
+    .filter((file) => file.endsWith('.js') || file.endsWith('.ts'))
+
+for (const file of eventFiles) {
+    const filePath = path.join(eventsPath, file)
+    const event = require(filePath)
+
+    console.log(`Loading ${file}...`)
+
+    if (event.once) {
+        client.once(event.name, (...args) => event.execute(...args))
+        console.log(`${file} loaded!`)
+    } else {
+        client.on(event.name, (...args) => event.execute(...args))
+        console.log(`${file} loaded!`)
+    }
+}
+
 client.login(process.env.TOKEN)
