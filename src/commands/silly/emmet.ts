@@ -2,18 +2,20 @@ import { CommandInteraction, SlashCommandBuilder } from 'discord.js'
 import expand from 'emmet'
 
 export const data = new SlashCommandBuilder()
-    .setName('emmetabbrieviations')
-    .setDescription('Adds the emmet abbrieviation functionality to discord')
+    .setName('emmet')
+    .setDescription('Converts emmet abbreviation to code')
     .addStringOption((option) =>
         option
-            .setName('codeblock')
+            .setName('abbreviation')
             .setDescription('The code block to parse')
             .setRequired(true)
     )
 
 export async function execute(interaction: CommandInteraction) {
-    const content = interaction.options.get('codeblock', true).value.toString()
-    if (!content) return
+    const abbreviation = interaction.options
+        .get('abbreviation', true)
+        .value?.toString()
+    if (!abbreviation) return
 
-    return await interaction.reply(`\`\`\`html\n${expand(content)}\`\`\``)
+    return await interaction.reply(`\`\`\`html\n${expand(abbreviation)}\`\`\``)
 }
