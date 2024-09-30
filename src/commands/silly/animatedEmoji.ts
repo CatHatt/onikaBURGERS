@@ -1,57 +1,62 @@
-import { CommandInteraction, SlashCommandBuilder } from 'discord.js'
+import { CommandInteraction, GuildEmoji, SlashCommandBuilder } from 'discord.js'
 
 export const data = new SlashCommandBuilder()
     .setName('animatedemoji')
     .setDescription('Sends a animated emoji without Nitro!')
     .addStringOption((option) =>
         option
-            .setName('emoji')
-            .setDescription('The code of the emoji you want to use')
+            .setName('message')
+            .setDescription('The message you want to send')
             .setRequired(true)
-    )
-    .addIntegerOption((option) =>
-        option
-            .setName('repeat')
-            .setDescription('How many times to repeat the emoji')
-            .setMinValue(1)
     )
 
 export async function execute(interaction: CommandInteraction) {
-    let emojiName = interaction.options.get('emoji', true).value?.toString()
-    if (!emojiName) return
+    let message = interaction.options.get('message', true).value?.toString()
+    if (!message) return interaction.reply('No message was entered')
 
-    // Checks if the emoji name is in the format of :emojiname:
-    if (!/^:.+:$/.test(emojiName)) {
-        // Gets the name of the emoji if its formatted as <:emojiname:1234567890> or <a:emojiname:1234567890> and in turn checks if it is formatted like one of those two options
-        const newEmojiName = /^(?:<a:|<:)([a-zA-Z0-9_]+):(\d+)>$|^null$/.exec(
-            emojiName
-        )
+    let unknownEmojis: string[] = []
 
-        if (!newEmojiName)
-            return interaction.reply({
-                content: `The emoji \`${emojiName}\` is not a valid discord emoji`,
-                ephemeral: true,
-            })
+    message.replaceAll(/:[^:]+:/g, (emojiInput) => {
+        let emojiName = emojiInput.substring(1, emojiInput.length - 1)
+        const foundEmoji = interaction.guild?.emojis.cache
+            .find(
+                (guildEmoji) =>
+                    guildEmoji.name ===
+                    emojiInput.substring(1, emojiInput.length - 1)
+            )
+            ?.toString()
+        if (!foundEmoji) {
+            unknownEmojis.push(emojiName)
+            return emojiInput
+        }
+        return foundEmoji
+    })
 
-        emojiName = newEmojiName[1]
-    }
+    await interaction.reply({ content: message })
 
-    const emoji = interaction.guild?.emojis.cache.find(
-        (guildEmoji) => guildEmoji.name === emojiName
-    )
+    if (unknownEmojis.length > 0) {
+        const filteredUnknownEmojis = removeDuplicates(unknownEmojis)
 
-    if (!emoji)
-        return interaction.reply({
-            content: `The emoji \`${emojiName}\` is not an emoji in this server`,
+        const unknownEmojiMessage =
+            filteredUnknownEmojis.length == 1
+                ? `The emoji ${filteredUnknownEmojis
+                      .map((emoji) => `\`${emoji}\``)
+                      .join(
+                          ', '
+                      )} is not an emoji in this server and couldn't be used`
+                : `The emojis ${filteredUnknownEmojis
+                      .map((emoji) => `\`${emoji}\``)
+                      .join(
+                          ', '
+                      )} are not emojis in this server and couldn't be used`
+
+        await interaction.followUp({
+            content: unknownEmojiMessage,
             ephemeral: true,
         })
+    }
+}
 
-    const repeatAmount = interaction.options.get('repeat')?.value ?? 1
-
-    interaction.reply(
-        `${new Array(repeatAmount).fill(`<${emoji.identifier}>`).join('')}`
-    )
-
-    if (!emoji.animated)
-        interaction.followUp({ content: `Note`, ephemeral: true })
+function removeDuplicates(arr: any[]) {
+    return arr.filter((item, index) => arr.indexOf(item) === index)
 }
