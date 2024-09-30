@@ -1,0 +1,33 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.data = void 0;
+exports.execute = execute;
+const discord_js_1 = require("discord.js");
+exports.data = new discord_js_1.SlashCommandBuilder()
+    .setName('hotreload')
+    .setDescription('Hot reloads a command.')
+    .addStringOption((option) => option
+    .setName('command')
+    .setDescription('The command to reload.')
+    .setRequired(true));
+async function execute(interaction) {
+    const commandName = interaction.options
+        .get('command', true)
+        .value?.toString()
+        .toLowerCase();
+    if (!commandName)
+        return;
+    const command = interaction.client.commands.get(commandName);
+    if (!command) {
+        return interaction.reply(`There is no command with name \`${commandName}\`!`);
+    }
+    try {
+        const newCommand = require(`./${command.data.name}.js`);
+        interaction.client.commands.set(newCommand.data.name, newCommand);
+        await interaction.reply(`Command \`${newCommand.data.name}\` was reloaded!`);
+    }
+    catch (error) {
+        console.error(error);
+        await interaction.reply(`There was an error while reloading a command \`${command.data.name}\`:\n\`${error}\``);
+    }
+}
