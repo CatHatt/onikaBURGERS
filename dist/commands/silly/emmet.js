@@ -12,7 +12,7 @@ exports.data = new discord_js_1.SlashCommandBuilder()
     .setDescription('Converts emmet abbreviation to code')
     .addStringOption((option) => option
     .setName('abbreviation')
-    .setDescription('The code block to parse')
+    .setDescription('The abbreviation to parse')
     .setRequired(true));
 async function execute(interaction) {
     const abbreviation = interaction.options

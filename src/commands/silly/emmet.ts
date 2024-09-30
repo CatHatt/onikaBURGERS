@@ -7,7 +7,7 @@ export const data = new SlashCommandBuilder()
     .addStringOption((option) =>
         option
             .setName('abbreviation')
-            .setDescription('The code block to parse')
+            .setDescription('The abbreviation to parse')
             .setRequired(true)
     )
 
