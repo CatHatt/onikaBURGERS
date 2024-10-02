@@ -6,6 +6,6 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction: CommandInteraction) {
     return await interaction.reply(
-        `<@1154329293250375741> is a certified **Facebook Mom™**`
+        '<@1154329293250375741> is a certified **Facebook Mom™**'
     )
 }
