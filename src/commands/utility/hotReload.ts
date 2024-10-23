@@ -3,11 +3,11 @@ import { ClientWithCommands } from '../../clientWithCommands'
 
 export const data = new SlashCommandBuilder()
     .setName('hotreload')
-    .setDescription('Hot reloads a command.')
+    .setDescription('Hot reloads a command')
     .addStringOption((option) =>
         option
             .setName('command')
-            .setDescription('The command to reload.')
+            .setDescription('The command to reload')
             .setRequired(true)
     )
 
